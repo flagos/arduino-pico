@@ -15,6 +15,7 @@ DallasTemperature sensors(&oneWire);
 // arrays to hold device addresses
 DeviceAddress heatThermometer, pipeThermometer,boilThermometer;
 
+
 void setup(void)
 {
   // start serial port
@@ -93,7 +94,7 @@ void printData(DeviceAddress deviceAddress)
   Serial.println();
 }
 
-void timerISR(void)
+void timerIsr()
 { 
   // call sensors.requestTemperatures() to issue a global temperature 
   // request to all devices on the bus
@@ -104,10 +105,11 @@ void timerISR(void)
   // print the device information
   printData(heatThermometer);
   printData(pipeThermometer);  
-  printData(boil
-  Thermometer);
+  printData(boilThermometer);
 }
 
 void loop(void){
- // do nothing 
+
+  
+  
 }
