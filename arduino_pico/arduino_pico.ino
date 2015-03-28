@@ -2,9 +2,9 @@
 #include "DallasTemperature.h"
 #include "TimerOne.h"
 #include "typedefs.h"
+#include "mapping.h"
 
-// Data wire is plugged into port ONE_WIRE_BUS on the Arduino
-#define ONE_WIRE_BUS A0
+
 #define TEMPERATURE_PRECISION 12
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
@@ -92,6 +92,27 @@ void setup(void)
   attachInterrupt(input_pipe.sensorInterrupt, input_pipe.pulseCounter, FALLING);
 
 
+  // Setup for relay
+  pinMode(RELAY0_1, OUTPUT);
+  pinMode(RELAY0_2, OUTPUT);
+  pinMode(RELAY0_3, OUTPUT);
+  pinMode(RELAY0_4, OUTPUT);
+  pinMode(RELAY0_5, OUTPUT);
+  pinMode(RELAY0_6, OUTPUT);
+  pinMode(RELAY0_7, OUTPUT);
+  pinMode(RELAY0_8, OUTPUT);
+  pinMode(RELAY1_1, OUTPUT);
+  pinMode(RELAY1_2, OUTPUT);
+
+  
+  // keep valves closed at setup
+  valve(0, LOW);
+  valve(1, LOW);
+  valve(2, LOW);
+  valve(3, LOW);
+  valve(4, LOW);
+  valve(5, LOW);
+
 }
 
 void interruptTemperature (void) 
@@ -171,11 +192,6 @@ void loop_water_flow(flow_sensor_t* sensor_t)
   }
 }
 
-void loop(void){
-  
-
-}
-
 /*
 Interrupt Service Routine
  */
@@ -190,3 +206,64 @@ void pulseCounter_pipe()
   // Increment the pulse counter
   input_pipe.pulseCount++;
 }
+
+
+void valve(int id, bool state)
+{
+  
+  switch(id) {
+   case 0:
+     if (state) {
+       digitalWrite(RELAY0_1, HIGH);
+       digitalWrite(RELAY0_2, LOW ); 
+     } else {
+       digitalWrite(RELAY0_1, LOW );
+       digitalWrite(RELAY0_2, HIGH);    
+     }     
+   break; 
+   case 1:
+     if (state) {
+       digitalWrite(RELAY0_3, HIGH);
+       digitalWrite(RELAY0_4, LOW ); 
+     } else {
+       digitalWrite(RELAY0_3, LOW );
+       digitalWrite(RELAY0_4, HIGH);    
+     }     
+   break; 
+   case 2:
+     if (state) {
+       digitalWrite(RELAY0_5, HIGH);
+       digitalWrite(RELAY0_6, LOW ); 
+     } else {
+       digitalWrite(RELAY0_5, LOW );
+       digitalWrite(RELAY0_6, HIGH);    
+     }     
+   break; 
+   case 3: 
+     if (state) {
+       digitalWrite(RELAY0_7, HIGH);
+       digitalWrite(RELAY0_8, LOW ); 
+     } else {
+       digitalWrite(RELAY0_7, LOW );
+       digitalWrite(RELAY0_8, HIGH);    
+     }     
+   break; 
+   case 4:
+      digitalWrite(RELAY1_1 , state);
+   break;
+   case 5:
+      digitalWrite(RELAY1_2 , state);
+   break;
+    
+  }
+}  
+  
+
+void loop(void){
+
+
+
+  
+}
+
+
