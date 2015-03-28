@@ -1,8 +1,9 @@
 #include "OneWire.h"
 #include "DallasTemperature.h"
+#include "TimerOne.h"
 
 // Data wire is plugged into port 2 on the Arduino
-#define ONE_WIRE_BUS A0
+#define ONE_WIRE_BUS 7
 #define TEMPERATURE_PRECISION 12
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
@@ -49,8 +50,9 @@ void setup(void)
   sensors.setResolution(pipeThermometer, TEMPERATURE_PRECISION);
   sensors.setResolution(boilThermometer, TEMPERATURE_PRECISION);
   
-  sensors.setWaitForConversion(true);
-  
+  Timer1.initialize(10000000); // set a timer of length 20000 microseconds (or 0.02 sec - or 50Hz => frequency of electricity in europe)
+  Timer1.attachInterrupt( timerIsr ); // attach the service routine here
+
 }
 
 // function to print a device address
@@ -92,7 +94,8 @@ void printData(DeviceAddress deviceAddress)
   Serial.println();
 }
 
-void loop(void){
+void timerIsr()
+{ 
   // call sensors.requestTemperatures() to issue a global temperature 
   // request to all devices on the bus
   Serial.print("Requesting temperatures...");
@@ -103,6 +106,10 @@ void loop(void){
   printData(heatThermometer);
   printData(pipeThermometer);  
   printData(boilThermometer);
+}
+
+void loop(void){
+
   
   
 }
