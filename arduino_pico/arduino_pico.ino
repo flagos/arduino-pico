@@ -1,10 +1,15 @@
 #include "OneWire.h"
 #include "DallasTemperature.h"
 #include "TimerOne.h"
+#include "SPI.h" // new include
+#include "Ethernet.h"
+#include "WebServer.h"
 #include "typedefs.h"
 #include "mapping.h"
 
-
+/*
+ *   Thermometer
+ */
 #define TEMPERATURE_PRECISION 12
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
@@ -17,6 +22,9 @@ DallasTemperature sensors(&oneWire);
 DeviceAddress heatThermometer, pipeThermometer, boilThermometer;
 float         heatTemp,        pipeTemp,        boilTemp;
 
+/*
+ *   Flow meter
+ */
 
 flow_sensor_t input_heat;
 flow_sensor_t input_pipe;
@@ -25,6 +33,93 @@ flow_sensor_t input_pipe;
 // litre/minute of flow.
 float calibrationFactor = 4.5;
 
+
+/*
+ *   Valves
+ */
+ bool ev0, ev1, ev2, ev3, ev4, ev5;
+
+/*
+ *   Ethernet
+ */
+static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEF };
+/* This creates an instance of the webserver.  By specifying a prefix
+ * of "", all pages will be at the root of the server. */
+#define PREFIX ""
+WebServer webserver(PREFIX, 80);
+
+#define NAMELEN 32
+#define VALUELEN 32
+
+P(Begin_JSON) = "{";
+P(End_JSON)   = "}";
+P(Separator_JSON)   = ",";
+P(heat_temp)   = "\"heat\":";
+P(pipe_temp)   = "\"pipe\":";
+P(boil_temp)   = "\"boil\":";
+P(EV0)         = "\"ev0\":";
+P(EV1)         = "\"ev1\":";
+P(EV2)         = "\"ev2\":";
+P(EV3)         = "\"ev3\":";
+P(EV4)         = "\"ev4\":";
+P(EV5)         = "\"ev5\":";
+
+
+void parsedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+{
+  URLPARAM_RESULT rc;
+  char name[NAMELEN];
+  char value[VALUELEN];
+   
+
+  /* this line sends the standard "we're all OK" headers back to the
+     browser */
+  server.httpSuccess();
+
+  /* if we're handling a GET or POST, we can output our data here.
+     For a HEAD request, we just stop after outputting headers. */
+  if (type == WebServer::HEAD)
+    return;
+
+  server.printP(Begin_JSON);
+  server.printP(heat_temp);
+  server.print(sensors.getTempC(heatThermometer));
+  server.printP(Separator_JSON); 
+  
+  server.printP(pipe_temp);
+  server.print(sensors.getTempC(pipeThermometer)); 
+  server.printP(Separator_JSON); 
+  
+  server.printP(boil_temp);
+  server.print(sensors.getTempC(boilThermometer)); 
+  server.printP(Separator_JSON); 
+  
+  server.printP(EV0);
+  server.print(ev0); 
+  server.printP(Separator_JSON); 
+
+  server.printP(EV1);
+  server.print(ev1);  
+  server.printP(Separator_JSON); 
+  
+  server.printP(EV2);
+  server.print(ev2);  
+  server.printP(Separator_JSON); 
+  
+  server.printP(EV3);
+  server.print(ev3);  
+  server.printP(Separator_JSON); 
+  
+  server.printP(EV4);
+  server.print(ev4);   
+  server.printP(Separator_JSON); 
+  
+  server.printP(EV5);
+  server.print(ev5); 
+  server.printP(End_JSON); 
+
+
+} 
 
 void setup(void)
 {
@@ -112,8 +207,23 @@ void setup(void)
   valve(3, LOW);
   valve(4, LOW);
   valve(5, LOW);
+  
+  
+  /* initialize the Ethernet adapter */
+  Ethernet.begin(mac);
+
+  /* setup our default command that will be run when the user accesses
+   * the root page on the server */
+  webserver.setDefaultCommand(&parsedCmd);
+  //webserver.setFailureCommand(&my_failCmd);
+  
+  webserver.addCommand("index.html", &parsedCmd);
+  
+  /* start the webserver */
+  webserver.begin();
 
 }
+
 
 void interruptTemperature (void) 
 {
@@ -219,7 +329,8 @@ void valve(int id, bool state)
      } else {
        digitalWrite(RELAY0_1, LOW );
        digitalWrite(RELAY0_2, HIGH);    
-     }     
+     } 
+     ev0 = state;  
    break; 
    case 1:
      if (state) {
@@ -229,6 +340,7 @@ void valve(int id, bool state)
        digitalWrite(RELAY0_3, LOW );
        digitalWrite(RELAY0_4, HIGH);    
      }     
+     ev1 = state;  
    break; 
    case 2:
      if (state) {
@@ -238,6 +350,7 @@ void valve(int id, bool state)
        digitalWrite(RELAY0_5, LOW );
        digitalWrite(RELAY0_6, HIGH);    
      }     
+     ev2 = state;  
    break; 
    case 3: 
      if (state) {
@@ -247,12 +360,15 @@ void valve(int id, bool state)
        digitalWrite(RELAY0_7, LOW );
        digitalWrite(RELAY0_8, HIGH);    
      }     
+     ev3 = state;  
    break; 
    case 4:
       digitalWrite(RELAY1_1 , state);
+      ev4 = state;  
    break;
    case 5:
       digitalWrite(RELAY1_2 , state);
+      ev5 = state;  
    break;
     
   }
@@ -260,10 +376,11 @@ void valve(int id, bool state)
   
 
 void loop(void){
+  char buff[64];
+  int len = 64;
 
-
-
-  
+  /* process incoming connections one at a time forever */
+  webserver.processConnection(buff, &len);
 }
 
 
