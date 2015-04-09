@@ -8,8 +8,11 @@ typedef struct {
            float         flowRate;
            unsigned int  flowMilliLitres;
            unsigned long totalMilliLitres;
+           unsigned long orderMilliLitres; // current status of order
            unsigned long oldTime;
            void          (*pulseCounter)();
+           int           targetMilliLitres;
+           int           targetEV;
 } flow_sensor_t;
 
 #endif

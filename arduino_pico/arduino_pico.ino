@@ -70,7 +70,12 @@ void parsedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail
   URLPARAM_RESULT rc;
   char name[NAMELEN];
   char value[VALUELEN];
-   
+  
+  int cFlow_heat = 0;
+  int cFlow_pipe = 0;     
+  int cEVstate   = 0; 
+  int cI   = 0; // count how EV are ordered: should max 1 
+  int cEV  = 0; // EV ordered 
 
   /* this line sends the standard "we're all OK" headers back to the
      browser */
@@ -80,6 +85,93 @@ void parsedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail
      For a HEAD request, we just stop after outputting headers. */
   if (type == WebServer::HEAD)
     return;
+    
+  if (strlen(url_tail))
+    {
+      while (strlen(url_tail))
+      {
+        rc = server.nextURLparam(&url_tail, name, NAMELEN, value, VALUELEN);
+        if (rc != URLPARAM_EOS) {
+           if(strcmp(name, "FLOW_INPUT_HEAT") == 0) {
+             cFlow_heat = atoi(value);
+           }
+           
+           if(strcmp(name, "FLOW_INPUT_PIPE") == 0) {
+             cFlow_pipe = atoi(value);             
+           }
+           
+           if(strcmp(name, "EV0") == 0) {
+             cEVstate = atoi(value);                  
+             cI++;
+             cEV = 0;
+           }
+           if(strcmp(name, "EV1") == 0) {
+             cEVstate = atoi(value);                  
+             cI++;
+             cEV = 1;
+           }
+           if(strcmp(name, "EV2") == 0) {
+             cEVstate = atoi(value);                  
+             cI++;
+             cEV = 2;
+           }
+           if(strcmp(name, "EV3") == 0) {
+             cEVstate = atoi(value);                  
+             cI++;
+             cEV = 3;
+           }
+           if(strcmp(name, "EV4") == 0) {
+             cEVstate = atoi(value);                  
+             cI++;
+             cEV = 4;
+           }
+           if(strcmp(name, "EV5") == 0) {
+             cEVstate = atoi(value);                  
+             cI++;
+             cEV = 5;
+           }
+          
+        }
+      }
+      
+      // lets process this command
+      if (cI > 1) {
+        server.print("Error: Please only one EV at a time");
+        return;
+      }
+      
+      if ((cFlow_heat != 0) &&  (cFlow_pipe != 0)) {
+        server.print("Error: One flow sensor at a time");
+        return;
+      }
+        
+      if (cFlow_heat != 0) {
+        if (input_heat.targetEV != -1){
+          server.print("Error: Input heat flow sensor is already in use");
+          return;        
+        } else {
+           input_heat.targetEV          = cEV;
+           input_heat.targetMilliLitres = cFlow_heat;
+           input_heat.orderMilliLitres  = 0;
+         }
+      }
+      
+      if (cFlow_pipe != 0) {
+        if (input_pipe.targetEV != -1){
+          server.print("Error: Input pipe flow sensor is already in use");
+          return;   
+        } else {
+           input_pipe.targetEV          = cEV;
+           input_pipe.targetMilliLitres = cFlow_pipe;
+           input_pipe.orderMilliLitres  = 0;
+        }     
+      }
+      
+      // lets open the selected valve
+      valve(cEV, cEVstate);
+            
+    }
+          
 
   server.printP(Begin_JSON);
   server.printP(heat_temp);
@@ -159,8 +251,11 @@ void setup(void)
     0,  // flowRate
     0,  // flowMilliLitres
     0,  // totalMilliLitres
+    0,  // orderMilliLitres
     0,  // oldTime
-    pulseCounter_heat // pulseCounter
+    pulseCounter_heat, // pulseCounter
+    0,  // targetMilliLitres;
+    -1  // targetEV;
   };
   
   input_pipe = {
@@ -170,8 +265,11 @@ void setup(void)
     0,  // flowRate
     0,  // flowMilliLitres
     0,  // totalMilliLitres
+    0,  // orderMilliLitres
     0,  // oldTime
-    pulseCounter_pipe // pulseCounter
+    pulseCounter_pipe, // pulseCounter
+    0,  // targetMilliLitres;
+    -1  // targetEV;
    };
   
   
@@ -273,6 +371,7 @@ void loop_water_flow(flow_sensor_t* sensor_t)
     
     // Add the millilitres passed in this second to the cumulative total
     sensor_t->totalMilliLitres += sensor_t->flowMilliLitres;
+    sensor_t->orderMilliLitres += sensor_t->flowMilliLitres;
       
     unsigned int frac;
     
@@ -299,6 +398,12 @@ void loop_water_flow(flow_sensor_t* sensor_t)
     
     // Enable the interrupt again now that we've finished sending output
     attachInterrupt( sensor_t->sensorInterrupt, sensor_t->pulseCounter, FALLING);
+    
+    if (sensor_t->targetEV != -1 && sensor_t->orderMilliLitres >= sensor_t->targetMilliLitres) {
+      valve(sensor_t->targetEV, LOW);
+      sensor_t->targetEV = -1;         
+      sensor_t->orderMilliLitres = 0;
+    }
   }
 }
 
