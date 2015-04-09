@@ -1,7 +1,7 @@
 #include "OneWire.h"
 #include "DallasTemperature.h"
 #include "TimerOne.h"
-#include "SPI.h" // new include
+#include "SPI.h" 
 #include "Ethernet.h"
 #include "WebServer.h"
 #include "typedefs.h"
@@ -215,8 +215,6 @@ void parsedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail
 
 void setup(void)
 {
-  // start serial port
-  Serial.begin(57600);
 
   // 1-wire devices temperature
 
@@ -372,26 +370,6 @@ void loop_water_flow(flow_sensor_t* sensor_t)
     // Add the millilitres passed in this second to the cumulative total
     sensor_t->totalMilliLitres += sensor_t->flowMilliLitres;
     sensor_t->orderMilliLitres += sensor_t->flowMilliLitres;
-      
-    unsigned int frac;
-    
-    // Print the flow rate for this second in litres / minute
-    Serial.print("Flow rate: ");
-    Serial.print(int(sensor_t->flowRate));  // Print the integer part of the variable
-    Serial.print(".");             // Print the decimal point
-    // Determine the fractional part. The 10 multiplier gives us 1 decimal place.
-    frac = (sensor_t->flowRate - int(sensor_t->flowRate)) * 10;
-    Serial.print(frac, DEC) ;      // Print the fractional part of the variable
-    Serial.print("L/min");
-    // Print the number of litres flowed in this second
-    Serial.print("  Current Liquid Flowing: ");             // Output separator
-    Serial.print(sensor_t->flowMilliLitres);
-    Serial.print("mL/Sec");
-
-    // Print the cumulative total of litres flowed since starting
-    Serial.print("  Output Liquid Quantity: ");             // Output separator
-    Serial.print(sensor_t->totalMilliLitres);
-    Serial.println("mL"); 
 
     // Reset the pulse counter so we can start incrementing again
     sensor_t->pulseCount = 0;
