@@ -15,6 +15,9 @@
 #define RELAY1_2 A4
 #define RELAY1_3 0
 
+#define HEAT_FLOW_SENSOR 2
+#define PIPE_FLOW_SENSOR 3
+
 
 
 #endif

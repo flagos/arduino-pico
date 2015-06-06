@@ -243,7 +243,7 @@ void setup(void)
   // Hall effect flow meter
   input_heat = {
     0,  // sensorInterrupt
-    2,  // sensorPin
+    HEAT_FLOW_SENSOR,  // sensorPin
     0,  // pulseCount
     0,  // flowRate
     0,  // flowMilliLitres
@@ -257,7 +257,7 @@ void setup(void)
   
   input_pipe = {
     1,  // sensorInterrupt
-    3,  // sensorPin
+    PIPE_FLOW_SENSOR,  // sensorPin
     0,  // pulseCount
     0,  // flowRate
     0,  // flowMilliLitres
