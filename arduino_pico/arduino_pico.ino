@@ -19,7 +19,10 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
 // Device addresses
-DeviceAddress heatThermometer, pipeThermometer, boilThermometer;
+DeviceAddress heatThermometer   = { 0x28, 0x82, 0x23, 0x28, 0x06, 0x00, 0x00, 0x91};
+DeviceAddress pipeThermometer   = { 0x28, 0x8D, 0x90, 0x26, 0x06, 0x00, 0x00, 0xA1};
+DeviceAddress boilThermometer   = { 0x28, 0xD3, 0x76, 0x28, 0x06, 0x00, 0x00, 0xCF};
+ 
 float         heatTemp,        pipeTemp,        boilTemp;
 
 /*
@@ -226,10 +229,6 @@ void setup(void)
   // by using either oneWire.search(deviceAddress) or individually via
   // sensors.getAddress(deviceAddress, index)
 
-  heatThermometer   = { 0x28, 0x82, 0x23, 0x28, 0x06, 0x00, 0x00, 0x91};
-  pipeThermometer   = { 0x28, 0x8D, 0x90, 0x26, 0x06, 0x00, 0x00, 0xA1};
-  boilThermometer   = { 0x28, 0xD3, 0x76, 0x28, 0x06, 0x00, 0x00, 0xCF};
- 
   // set the resolution to 12 bit
   sensors.setResolution(heatThermometer, TEMPERATURE_PRECISION);
   sensors.setResolution(pipeThermometer, TEMPERATURE_PRECISION);
