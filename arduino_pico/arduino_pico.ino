@@ -406,50 +406,50 @@ void valve(int id, bool state)
   switch(id) {
    case 0:
      if (state) {
-       digitalWrite(RELAY0_1, HIGH);
-       digitalWrite(RELAY0_2, LOW ); 
-     } else {
        digitalWrite(RELAY0_1, LOW );
-       digitalWrite(RELAY0_2, HIGH);    
+       digitalWrite(RELAY0_2, HIGH); 
+     } else {
+       digitalWrite(RELAY0_1, HIGH);
+       digitalWrite(RELAY0_2, LOW );    
      } 
      ev0 = state;  
    break; 
    case 1:
      if (state) {
-       digitalWrite(RELAY0_3, HIGH);
-       digitalWrite(RELAY0_4, LOW ); 
-     } else {
        digitalWrite(RELAY0_3, LOW );
-       digitalWrite(RELAY0_4, HIGH);    
+       digitalWrite(RELAY0_4, HIGH); 
+     } else {
+       digitalWrite(RELAY0_3, HIGH);
+       digitalWrite(RELAY0_4, LOW );    
      }     
      ev1 = state;  
    break; 
    case 2:
      if (state) {
-       digitalWrite(RELAY0_5, HIGH);
-       digitalWrite(RELAY0_6, LOW ); 
-     } else {
        digitalWrite(RELAY0_5, LOW );
-       digitalWrite(RELAY0_6, HIGH);    
-     }     
+       digitalWrite(RELAY0_6, HIGH); 
+     } else {
+       digitalWrite(RELAY0_5, HIGH);
+       digitalWrite(RELAY0_6, LOW );    
+     } 
      ev2 = state;  
    break; 
    case 3: 
      if (state) {
-       digitalWrite(RELAY0_7, HIGH);
-       digitalWrite(RELAY0_8, LOW ); 
-     } else {
        digitalWrite(RELAY0_7, LOW );
-       digitalWrite(RELAY0_8, HIGH);    
-     }     
+       digitalWrite(RELAY0_8, HIGH); 
+     } else {
+       digitalWrite(RELAY0_7, HIGH);
+       digitalWrite(RELAY0_8, LOW );    
+     } 
      ev3 = state;  
    break; 
    case 4:
-      digitalWrite(RELAY1_1 , state);
+      digitalWrite(RELAY1_1 , !state);
       ev4 = state;  
    break;
    case 5:
-      digitalWrite(RELAY1_2 , state);
+      digitalWrite(RELAY1_2 , !state);
       ev5 = state;  
    break;
     
