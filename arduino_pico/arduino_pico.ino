@@ -218,9 +218,10 @@ void parsedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail
 
 void setup(void)
 {
-
-  //  Serial.begin(9600);      // open the serial port at 9600 bps:    
-
+  
+  //Serial.begin(115200);      // open the serial port at 9600 bps:    
+ 
+  //Serial.print("*** at setup");
 
   // 1-wire devices temperature
 
@@ -299,6 +300,9 @@ void setup(void)
   pinMode(RELAY1_2, OUTPUT);
   pinMode(RELAY1_3, OUTPUT);
 
+  // pin mode for flow meter 
+  pinMode(HEAT_FLOW_SENSOR, INPUT);
+  pinMode(PIPE_FLOW_SENSOR, INPUT);
 
   
   // keep valves closed at setup
@@ -343,6 +347,9 @@ void timerIsr()
 { 
   interruptTemperature(); // get temperature data and request measure
   
+   // Serial.print("*** at timer\n");
+
+  
   loop_water_flow(&input_heat);
   loop_water_flow(&input_pipe);
 }
@@ -380,6 +387,10 @@ void loop_water_flow(flow_sensor_t* sensor_t)
     // Reset the pulse counter so we can start incrementing again
     sensor_t->pulseCount = 0;
     
+    // Serial.print("loop_flow_water ");
+    // Serial.print(sensor_t->totalMilliLitres);
+    // Serial.print("\n");
+    
     // Enable the interrupt again now that we've finished sending output
     attachInterrupt( sensor_t->sensorInterrupt, sensor_t->pulseCounter, FALLING);
     
@@ -398,18 +409,18 @@ void pulseCounter_heat()
 {
   // Increment the pulse counter
   input_heat.pulseCount++;
-//  Serial.print("*** interrupt heat ");
-//  Serial.print(input_heat.pulseCount, DEC);
-//  Serial.println();
+  // Serial.print("*** interrupt heat ");
+  // Serial.print(input_heat.pulseCount, DEC);
+  // Serial.println();
 }
 
 void pulseCounter_pipe()
 {
   // Increment the pulse counter
   input_pipe.pulseCount++;
-//  Serial.print("*** interrupt pipe ");
-//  Serial.print(input_pipe.pulseCount, DEC);
-//  Serial.println();  
+  //Serial.print("*** interrupt pipe ");
+  //Serial.print(input_pipe.pulseCount, DEC);
+  //Serial.println();  
 }
 
 
