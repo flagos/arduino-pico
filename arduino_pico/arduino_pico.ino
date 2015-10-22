@@ -20,8 +20,8 @@ DallasTemperature sensors(&oneWire);
 
 // Device addresses
 DeviceAddress heatThermometer   = { 0x28, 0x82, 0x23, 0x28, 0x06, 0x00, 0x00, 0x91};
-DeviceAddress pipeThermometer   = { 0x28, 0x8D, 0x90, 0x26, 0x06, 0x00, 0x00, 0xA1};
-DeviceAddress boilThermometer   = { 0x28, 0xD3, 0x76, 0x28, 0x06, 0x00, 0x00, 0xCF};
+DeviceAddress pipeThermometer   = { 0x28, 0xD3, 0x76, 0x28, 0x06, 0x00, 0x00, 0xCF};
+DeviceAddress boilThermometer   = { 0x28, 0x8D, 0x90, 0x26, 0x06, 0x00, 0x00, 0xA1};
  
 float         heatTemp,        pipeTemp,        boilTemp;
 
@@ -219,6 +219,9 @@ void parsedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail
 void setup(void)
 {
 
+  //  Serial.begin(9600);      // open the serial port at 9600 bps:    
+
+
   // 1-wire devices temperature
 
   // Start up the library
@@ -281,6 +284,7 @@ void setup(void)
   attachInterrupt(input_heat.sensorInterrupt, input_heat.pulseCounter, FALLING);
   attachInterrupt(input_pipe.sensorInterrupt, input_pipe.pulseCounter, FALLING);
 
+  delay(100);
 
   // Setup for relay
   pinMode(RELAY0_1, OUTPUT);
@@ -293,6 +297,8 @@ void setup(void)
   pinMode(RELAY0_8, OUTPUT);
   pinMode(RELAY1_1, OUTPUT);
   pinMode(RELAY1_2, OUTPUT);
+  pinMode(RELAY1_3, OUTPUT);
+
 
   
   // keep valves closed at setup
@@ -302,6 +308,7 @@ void setup(void)
   valve(3, LOW);
   valve(4, LOW);
   valve(5, LOW);
+  
   
   
   /* initialize the Ethernet adapter */
@@ -391,12 +398,18 @@ void pulseCounter_heat()
 {
   // Increment the pulse counter
   input_heat.pulseCount++;
+//  Serial.print("*** interrupt heat ");
+//  Serial.print(input_heat.pulseCount, DEC);
+//  Serial.println();
 }
 
 void pulseCounter_pipe()
 {
   // Increment the pulse counter
   input_pipe.pulseCount++;
+//  Serial.print("*** interrupt pipe ");
+//  Serial.print(input_pipe.pulseCount, DEC);
+//  Serial.println();  
 }
 
 
@@ -405,7 +418,7 @@ void valve(int id, bool state)
   
   switch(id) {
    case 0:
-     if (state) {
+     if (!state) {
        digitalWrite(RELAY0_1, LOW );
        digitalWrite(RELAY0_2, HIGH); 
      } else {
@@ -415,7 +428,7 @@ void valve(int id, bool state)
      ev0 = state;  
    break; 
    case 1:
-     if (state) {
+     if (!state) {
        digitalWrite(RELAY0_3, LOW );
        digitalWrite(RELAY0_4, HIGH); 
      } else {
@@ -425,7 +438,7 @@ void valve(int id, bool state)
      ev1 = state;  
    break; 
    case 2:
-     if (state) {
+     if (!state) {
        digitalWrite(RELAY0_5, LOW );
        digitalWrite(RELAY0_6, HIGH); 
      } else {
@@ -435,7 +448,7 @@ void valve(int id, bool state)
      ev2 = state;  
    break; 
    case 3: 
-     if (state) {
+     if (!state) {
        digitalWrite(RELAY0_7, LOW );
        digitalWrite(RELAY0_8, HIGH); 
      } else {
@@ -445,11 +458,11 @@ void valve(int id, bool state)
      ev3 = state;  
    break; 
    case 4:
-      digitalWrite(RELAY1_1 , !state);
+      digitalWrite(RELAY1_2 , !state);
       ev4 = state;  
    break;
    case 5:
-      digitalWrite(RELAY1_2 , !state);
+      digitalWrite(RELAY1_3 , !state);
       ev5 = state;  
    break;
     

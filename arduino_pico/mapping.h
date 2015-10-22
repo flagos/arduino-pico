@@ -1,7 +1,7 @@
 #ifndef MAPPING_H
 #define MAPPING_H
 
-#define ONE_WIRE_BUS 4
+#define ONE_WIRE_BUS 5
 
 #define RELAY0_1 A0
 #define RELAY0_2 A1
@@ -11,7 +11,7 @@
 #define RELAY0_6 A5
 #define RELAY0_7 9
 #define RELAY0_8 8
-#define RELAY1_1 5
+#define RELAY1_1 4 // to not use !
 #define RELAY1_2 6
 #define RELAY1_3 7
 
