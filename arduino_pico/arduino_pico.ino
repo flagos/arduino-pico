@@ -313,10 +313,11 @@ void setup(void)
   valve(4, LOW);
   valve(5, LOW);
   
-  
+    IPAddress ip(192, 168, 0, 178);
   
   /* initialize the Ethernet adapter */
-  Ethernet.begin(mac);
+  Ethernet.begin(mac, ip);
+
 
   /* setup our default command that will be run when the user accesses
    * the root page on the server */
